@@ -1,23 +1,4 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 2024/02/26 16:03:58
-// Design Name: 
-// Module Name: uart_byte_tx
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 
 module uart_byte_tx(
@@ -46,7 +27,7 @@ module uart_byte_tx(
     output reg uart_tx;
     output reg led;
     
-    //波特率季數器
+     //band rate 9600
      // 1/9600*125000000-1=13019
      reg [14:0] baud_div_cnt;
      reg en_baud_cnt;
@@ -63,7 +44,7 @@ module uart_byte_tx(
     else 
         baud_div_cnt<=0;
 
-    //en邏輯
+    //en_baud_cnt
     reg [3:0] bit_cnt;
     always@(posedge clk or posedge rst)
     if(rst)
@@ -71,10 +52,10 @@ module uart_byte_tx(
     else if(delay_cnt==MCNT_DLY)
         en_baud_cnt<=1;
     else if(bit_cnt==9 && baud_div_cnt==MCNT_BAUD)
-        en_baud_cnt<=0;//改1會一直發送
+        en_baud_cnt<=0;
         
-    //位計數器
-    parameter MCNT_BIT=10-1;//start+8bits+stop共10位
+    //bit_cnt
+    parameter MCNT_BIT=10-1;//start+8bits+stop (10bits)
     always@(posedge clk or posedge rst)
     if(rst)
         bit_cnt<=0;
@@ -85,8 +66,8 @@ module uart_byte_tx(
             bit_cnt<=bit_cnt+1;
     end
     
-    //延時計器  
-    reg [26:0] delay_cnt;//延遲一秒
+    //delay_cnt 
+    reg [26:0] delay_cnt;//delay a second
     parameter MCNT_DLY = 125_000_000-1;
     always@(posedge clk or posedge rst)
     if(rst)
@@ -98,13 +79,13 @@ module uart_byte_tx(
          
     reg [7:0] r_data;
     always@(posedge clk or posedge rst)
-    if(rst)//這裡可不復位
+    if(rst)
         r_data<=0;
     else if(delay_cnt==MCNT_DLY)
         r_data<=data;
     else
         r_data<=r_data;
-    //位發送邏輯
+    //uart_tx
     always@(posedge clk or posedge rst)
     if(rst)
         uart_tx<=1'd1;
@@ -126,7 +107,7 @@ module uart_byte_tx(
         endcase
     end
     
-    //led翻轉邏輯
+    //led
     always@(posedge clk or posedge rst)
     if(rst)
         led<=0;
